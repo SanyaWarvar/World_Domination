@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {{data.country_name}}
+    </title>
+</head>
+
+
+<body>
+
+    <div><p>Название страны: {{data.country_name}}</p></div>
+    <p>Перк: {{data.perk}}</p>
+    <hr width="300px" align="left">
+
+    {% for i in range(4) -%}
+        <div>
+        <p width="150px">{{data.towns[i].name}}: {{data.towns[i].quality}}% </p>
+        {% if data.towns[i].shield -%}}
+            <p>Щит: Есть</p>
+        {% else -%}
+            {% if data.towns[i].shield_next-%}
+                <p>Щит: Будет</p>
+            {% else -%}
+                <p>Щит: Нет</p>
+            {% endif -%}
+        {% endif -%}
+        </div>
+        <hr width="300px" align="left">
+    {% endfor -%}
+
+    <div>
+        <p>Бюджет: {{data.money}} (+{{data.money_next()}})</p>
+        {% if data.nuke-%}
+            <p>Ядерная разработка: Есть</p>
+        {% else -%}
+            <p>Ядерная разработка: Нет</p>
+
+        {% endif -%}
+        <p>Количество бомб: {{data.bombs_count}} (+{{data.bombs_count_next}})</p>
+        <p>Санкции наложили:
+        {% for x in data.sanctions -%}
+        {{x}},
+        {% endfor -%}
+        </p>
+
+    </div>
+
+
+
+
+</body>
+</html>
