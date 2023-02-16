@@ -34,8 +34,7 @@ class Player:
 
         self.sanctions = []
         self.sanctions_next = []
-        
-        
+
     def money_next(self):
         sum_quality = 0
         for i in self.towns:
