@@ -22,6 +22,7 @@ def create():
                 "success_create.html",
                 data=Player(country_name, towns_names, perk)
             )
+    return render_template("country_country.html")
 
 
 @app.route("/create", methods=['post', 'get'])
