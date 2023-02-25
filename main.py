@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, flash
-from classes import Player
-
-
-app = Flask(__name__)
+from flask import render_template, request
+from classes import Player, Users
+from config import app, db
+from werkzeug.security import generate_password_hash
+from sqlalchemy import exc
 
 
 @app.route("/", methods=['post', 'get'])
@@ -28,6 +28,22 @@ def create():
 @app.route("/create", methods=['post', 'get'])
 def main():
     return render_template("main.html")
+
+
+@app.route("/register", methods=['post', 'get'])
+def register():
+    if request.method == "POST":
+        try:
+            password_hash = generate_password_hash(request.form['user_password'])
+            new_user = Users(name=request.form['user_name'], password=password_hash)
+            db.session.add(new_user)
+            db.session.flush()
+            db.session.commit()
+
+        except exc.SQLAlchemyError:
+            pass
+
+    return render_template("register.html")
 
 
 if __name__ == "__main__":

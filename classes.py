@@ -1,3 +1,6 @@
+from config import db
+
+
 class Town:
     def __init__(self, name, is_capital=False):
         self.name = name
@@ -41,3 +44,12 @@ class Player:
             sum_quality += i.quality
             
         return sum_quality
+
+
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), unique=True)
+    password = db.Column(db.String(30), nullable=True)
+
+    def __repr__(self):
+        return f"<Users {self.id}>"
