@@ -48,8 +48,8 @@ class Player:
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30), unique=True)
-    password = db.Column(db.String(30), nullable=True)
+    name = db.Column(db.String(15), unique=True)
+    password = db.Column(db.String(20), nullable=True)
 
     def __repr__(self):
         return f"<Users {self.id}>"

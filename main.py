@@ -34,14 +34,14 @@ def main():
 def register():
     if request.method == "POST":
         try:
-            password_hash = generate_password_hash(request.form['user_password'])
+            password_hash = request.form['user_password']
             new_user = Users(name=request.form['user_name'], password=password_hash)
             db.session.add(new_user)
             db.session.flush()
             db.session.commit()
 
         except exc.SQLAlchemyError:
-            pass
+            db.session.rollback()
 
     return render_template("register.html")
 
