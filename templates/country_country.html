@@ -11,6 +11,7 @@
 <body>
 
 <form action="" method="post">
+    {{message}}
     <div>
     <p>
         <label>Название страны</label>
@@ -75,7 +76,10 @@
             <input type="radio" value="Джимми Нейтрон", name="perk">
             <label>Джимми Нейтрон</label>
         </div>
-
+        <div>
+            <label>Введите id лобби для игры</label>
+        <input type="text" name="lobby_id" required>
+        </div>
     </div>
     <br>
     <button type="submit">Завершить создание</button>
