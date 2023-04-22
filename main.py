@@ -1,17 +1,42 @@
-from flask import render_template, request, url_for
-from flask_login import login_required, login_user, current_user
+from flask import render_template, request, url_for, redirect
+from flask_login import login_required, login_user, current_user, logout_user
 from classes import Lobby, LobbyPlayer, Town, Users
 from config import app, db
 from sqlalchemy import exc
 
 
+@app.route("/new_lobby", methods=['post', 'get'])
+@login_required
+def new_lobby():
+    if request.method == 'POST':
+        lobby_name = request.form.get('lobby_name')
+        lobby_password = request.form.get('lobby_password')
+        if lobby_password is None:
+            lobby_password = ""
+
+        # переписать проверку названий городов и стран по такому же принципу
+        if Lobby.query.filter_by(title=lobby_name).first():
+
+            return render_template("lobby_create.html", message="Название лобби уже занято")
+        if len(lobby_name) > 20 or len(lobby_password) > 20:
+            return render_template("lobby_create.html", message="Название или пароль слишком длинное")
+        try:
+            player_count = int(request.form.get('player_count'))
+        except ValueError:
+            return render_template("lobby_create.html", message="Количество игроков должно быть целым числом")
+
+        new = Lobby(title=lobby_name, password=lobby_password, player_count=player_count)
+        db.session.add(new)
+        db.session.flush()
+        db.session.commit()
+        return redirect(url_for("create"))
+
+    return render_template("lobby_create.html", message="")
+
+
 @app.route("/create", methods=['post', 'get'])
 @login_required
 def create():
-    if current_user.current_country_id:
-
-        return app.redirect(url_for("play", country_id=current_user.current_country_id))
-
     if request.method == 'POST':
         country_name = request.form.get('country_name')
         towns_names = [
@@ -24,28 +49,30 @@ def create():
         if perk is None:
             return render_template("country_country.html", message="Перк не выбран")
 
-        lobby_id = request.form.get('lobby_id')
-        if len(db.session.query(LobbyPlayer).filter_by(lobby_id=lobby_id).all()) == 0:
+        lobby_name = request.form.get('lobby_name')
+        lobby = Lobby.query.filter_by(title=lobby_name).first()
 
-            new_lobby = Lobby(title=str(lobby_id))
-            new_lobby.round_num = 1
-            db.session.add(new_lobby)
-            db.session.flush()
-        else:
-            country_name_in_lobby = [
-                country.country_name for country in LobbyPlayer.query.filter_by(lobby_id=lobby_id).all()
-            ]
-            if country_name in country_name_in_lobby:
-                message = "Название страны уже занято!"
-                return render_template("country_country.html", message=message)
+        if lobby is None:
+            return render_template("country_country.html", message="Лобби с таким названием не существует")
+        if lobby.password != request.form.get('lobby_password'):
+            return render_template("country_country.html", message="Неверный пароль от лобби")
+        if lobby.player_count == len(LobbyPlayer.query.filter_by(lobby_id=lobby.id).all()):
+            return render_template("country_country.html", message="Это лобби уже заполнено")
 
-        new_player = LobbyPlayer(lobby_id=int(request.form.get('lobby_id')), country_name=country_name, perk=perk)
+        country_name_in_lobby = [
+            country.country_name for country in LobbyPlayer.query.filter_by(lobby_id=lobby.id).all()
+        ]
+        if country_name in country_name_in_lobby:
+            message = "Название страны уже занято!"
+            return render_template("country_country.html", message=message)
+
+        new_player = LobbyPlayer(lobby_id=lobby.id, country_name=country_name, perk=perk)
 
         db.session.add(new_player)
         db.session.flush()
 
         town_names_in_lobby = []
-        for player in LobbyPlayer.query.filter_by(lobby_id=lobby_id).all():
+        for player in LobbyPlayer.query.filter_by(lobby_id=lobby.id).all():
             t = Town.query.filter_by(country_id=player.id).all()
             names = [town.name for town in t]
             for name in names:
@@ -69,7 +96,7 @@ def create():
         db.session.flush()
         db.session.commit()
 
-        return app.redirect(url_for("play", country_id=new_player.id))
+        return redirect(url_for("play", country_id=new_player.id))
 
     return render_template("country_country.html", message="")
 
@@ -79,11 +106,11 @@ def create():
 def play(country_id):
 
     if current_user.current_country_id is not int(country_id) and current_user.role != "admin":
-        return app.redirect(url_for("play", country_id=current_user.current_country_id))
+        return redirect(url_for("play", country_id=current_user.current_country_id))
 
     player = LobbyPlayer.query.filter_by(id=country_id).first()
     towns = Town.query.filter_by(country_id=country_id).all()
-    lobby = Lobby.query.filter_by(title=player.lobby_id).first()
+    lobby = Lobby.query.filter_by(id=player.lobby_id).first()
     if request.method == 'POST':
         # улучшения
         if request.form.get("upg"):
@@ -121,7 +148,7 @@ def play(country_id):
             if player.money >= player.shield_cost and shld_t.shield < 3 and shld_t.shield_next < 3 \
                     and player.perk == "Джимми Нейтрон" and shld_t.quality > 0:
                 shld_t.shield_next = 3
-                player.money -= player.shield_cost
+                player.money -= player.shield_cost * 3
                 db.session.add(shld_t)
                 db.session.add(player)
                 db.session.commit()
@@ -223,7 +250,7 @@ def play(country_id):
 
     return render_template(
         "success_create.html",
-        db=db, towns=towns, player=player, LobbyPlayer=LobbyPlayer, Town=Town, Lobby=Lobby, str=str
+        db=db, towns=towns, player=player, LobbyPlayer=LobbyPlayer, Town=Town, Lobby=Lobby, str=str, len=len
     )
 
 
@@ -236,7 +263,7 @@ def login():
         if target_user.password == password:
             login_user(target_user)
 
-            return app.redirect(url_for("cabinet", id=target_user.id))
+            return redirect(url_for("cabinet", user_id=target_user.id))
     return render_template("login.html")
 
 
@@ -252,8 +279,14 @@ def register():
             db.session.rollback()
             return render_template("register.html", message="Пользователь с таким именем уже есть")
         login_user(new_user)
-        return app.redirect(url_for("cabinet", id=new_user.id))
+        return redirect(url_for("cabinet", user_id=new_user.id))
     return render_template("register.html", message="")
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('main'))
 
 
 @app.route("/", methods=['post', 'get'])
@@ -266,9 +299,11 @@ def main():
 def cabinet(user_id):
 
     if current_user.id == int(user_id):
-        return render_template("cabinet.html")
+        return render_template("cabinet.html", Users=Users, user_id=user_id)
     else:
-        return app.redirect(url_for("login"))
+        return redirect(url_for("login"))
+
+
 
 
 if __name__ == "__main__":

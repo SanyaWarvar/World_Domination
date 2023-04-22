@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Новое лобби</title>
+</head>
+<body>
+    {{message}}
+    <form action="" method="post">
+        <div>
+            <label>Название: </label>
+            <input type="text" name="lobby_name" required>
+        </div>
+        <div>
+            <label>Пароль: </label>
+            <input type="password" name="lobby_password">
+        </div>
+        <div>
+            <label>Введите ожидаемое количество игроков: </label>
+            <input type="text" name="player_count" required>
+        </div>
+        <button type="submit">Создать лобби</button>
+
+    </form>
+
+</body>
+</html>

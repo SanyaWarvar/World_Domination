@@ -5,16 +5,22 @@ from flask_login import UserMixin
 class Lobby(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(20), unique=True, nullable=True)
+    password = db.Column(db.String(20))
     eco = db.Column(db.Float)
     eco_next = db.Column(db.Float)
     round_num = db.Column(db.Integer)
+    player_count = db.Column(db.Integer)
 
-    def __init__(self, title):
+    def __init__(self, title, password, player_count):
         self.eco = 90
         self.eco_next = 0
         self.title = title
+        self.password = password
+        self.round_num = 1
+        self.player_count = player_count
 
     def round(self):
+        self.round_num += 1
         self.eco += self.eco_next
         self.eco_next = 0
 
@@ -25,7 +31,7 @@ class Lobby(db.Model):
             player.sanctions += player.sanctions_next
             player.sanctions_next = ""
             player.money += round(
-                player.money_mltp * player.get_quality() * (1 - 0.1 * (player.sanctions.count("|")//2))
+                player.money_mltp * player.get_quality() * (1 - 0.1 * (player.sanctions.count("|") // 2))
             )
 
             if player.nuke_next == "Будет":

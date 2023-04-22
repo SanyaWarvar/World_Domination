@@ -19,17 +19,27 @@
 
 </style>
 
+{% if Lobby.query.filter_by(id=player.lobby_id).first().player_count != len(LobbyPlayer.query.filter_by(lobby_id=player.lobby_id).all()) %}
+<div>
+    <p>Ожидайте игроков</p>
+    <p>Готово к игре: {{len(LobbyPlayer.query.filter_by(lobby_id=player.lobby_id).all())}} / {{Lobby.query.filter_by(id=player.lobby_id).first().player_count}}</p>
+    <form method="post">
+    <button type="submit" >Обновить данные</button>
+    </form>
+</div>
 
+
+{% else %}
 <body>
 <div>
-
-        <div><p>Название страны: {{player.country_name}}</p></div>
-        <p>Перк: {{player.perk}}</p>
-        <hr width="300px" align="left">
-        <form method="POST">
+    <form method="POST">
             <button type="submit" value="{{player.id}}" name="ready">Готов</button>
             <button type="submit" >Обновить данные</button>
         </form>
+        <div><p>Название страны: {{player.country_name}}</p></div>
+        <p>Перк: {{player.perk}}</p>
+        <hr width="300px" align="left">
+
         <form method="POST">
         {% for i in range(4) -%}
             <div>
@@ -93,8 +103,8 @@
         </div>
 
     <div class="block0">
-
-        <p>Уровень экологии: {{Lobby.query.filter_by(title=player.lobby_id).first().eco}}%
+        <p>Текущий раунд: {{Lobby.query.filter_by(id=player.lobby_id).first().round_num}}</p>
+        <p>Уровень экологии: {{Lobby.query.filter_by(id=player.lobby_id).first().eco}}%
         <form method="post">
         <button type="submit" value="1" name="eco_up">Улучшить экологию </button>
     </form>
@@ -212,6 +222,8 @@
     {% else %}
 
     {% endif -%}
+
+{% endif %}
 
 </body>
 </html>
