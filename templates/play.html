@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Шпионаж</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .block {
+            height: 200px;
+            text-align: center;
+            font-size: 24px;
+            padding-top: 80px;
+        }
+        .block1 {
+            background-color: #f2f2f2;
+        }
+        .block2 {
+            background-color: #d9d9d9;
+        }
+        .block3 {
+            background-color: #c6e2ff;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 block block1">
+                <h2>Первый блок</h2>
+            </div>
+            <div class="col-md-6 block block2">
+                <button type="button" class="btn btn-primary" id="spyButton">Шпионаж</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 block block3">
+                <h2>Третий блок</h2>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $("#spyButton").click(function(){
+                $(".block1").toggleClass("col-md-6 col-md-4");
+                $(".block2").toggleClass("col-md-6 col-md-4");
+                $(".block3").toggle();
+                if ($(this).text() === "Шпионаж") {
+                    $(this).text("Закончить шпионаж");
+                } else {
+                    $(this).text("Шпионаж");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

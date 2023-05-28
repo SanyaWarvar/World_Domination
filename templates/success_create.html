@@ -31,7 +31,7 @@
 
 {% else %}
 <body>
-<div>
+<div class="block">
     <form method="POST">
             <button type="submit" value="{{player.id}}" name="ready">Готов</button>
             <button type="submit" >Обновить данные</button>
@@ -100,7 +100,7 @@
 
         </div>
 
-        </div>
+</div>
 
     <div class="block0">
         <p>Текущий раунд: {{Lobby.query.filter_by(id=player.lobby_id).first().round_num}}</p>
@@ -155,11 +155,6 @@
 
 
 </div>
-
-
-
-
-
     </div>
 
     <div class="block1">
@@ -168,19 +163,9 @@
         <p>Шпионаж:</p>
         <div>
 
-
-
-
-
-
-
-
-
-
         <div><p>Название страны: {{LobbyPlayer.query.filter_by(id=player.spy).first().country_name}}</p></div>
         <p>Перк: {{LobbyPlayer.query.filter_by(id=player.spy).first().perk}}</p>
         <hr width="300px" align="left">
-
 
         {% for i in Town.query.filter_by(country_id=player.spy).all() -%}
             <div>

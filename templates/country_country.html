@@ -1,105 +1,41 @@
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Создание
-    </title>
-</head>
-<style type="text/css">
-    .block0{
-    position: relative;
-    top: -620px;
-    left: 450px;
-   }
-</style>
-
-<body>
+{% extends "general_template.html" %}
+{% block content %}
 
 <form action="" method="post">
-    {{message}}
-    <div>
-    <p>
-        <label>Название страны</label>
-        <input type="text" name="country_name" required>
-    </p>
-
-    <p>
-        <label>Название первого города</label>
-        <input type="text" name="t1_name" required>
-    </p>
-
-    <p>
-        <label>Название второго города</label>
-        <input type="text" name="t2_name" required>
-    </p>
-
-    <p>
-        <label>Название третьего города</label>
-        <input type="text" name="t3_name" required>
-    </p>
-
-    <p>
-        <label>Название четвертого города</label>
-        <input type="text" name="t4_name" required>
-    </p>
-    </div>
-
-    <div>
-        <div>
-            <input type="radio" value="Пацифист", name="perk">
-            <label>Пацифист</label>
-        </div>
-        <div>
-            <input type="radio" value="Житель пустоши", name="perk">
-            <label>Житель пустоши</label>
-        </div>
-        <div>
-            <input type="radio" value="Нетерпеливый", name="perk">
-            <label>Нетерпеливый</label>
-        </div>
-        <div>
-            <input type="radio" value="Дед Инсайд", name="perk">
-            <label>Дед Инсайд</label>
-        </div>
-        <div>
-            <input type="radio" value="Берсерк", name="perk">
-            <label>Берсерк</label>
-        </div>
-        <div>
-            <input type="radio" value="Золотой телец", name="perk">
-            <label>Золотой телец</label>
-        </div>
-        <div>
-            <input type="radio" value="Друид", name="perk">
-            <label>Друид</label>
-        </div>
-        <div>
-            <input type="radio" value="Мародер", name="perk">
-            <label>Мародер</label>
-        </div>
-        <div>
-            <input type="radio" value="Джимми Нейтрон", name="perk">
-            <label>Джимми Нейтрон</label>
-        </div>
-        <div>
-            <label>Введите название лобби</label>
-        <input type="text" name="lobby_name" required>
-        </div>
-        <div>
-            <label>Введите пароль от лобби</label>
-        <input type="text" name="lobby_password" >
-        </div>
-    </div>
+    {{ massage }}
     <br>
-    <button type="submit">Завершить создание</button>
-
-
-
-</form>
-
-
-
-
-</body>
-</html>
+    <input class="form-control" type="text"  name="country_name" placeholder="Название страны" aria-label="default input example" required>
+    <br>
+    <input class="form-control" type="text"  name="t1_name" placeholder="Название первого города" aria-label="default input example" required>
+    <br>
+    <input class="form-control" type="text"  name="t2_name" placeholder="Название второго города" aria-label="default input example" required>
+    <br>
+    <input class="form-control" type="text"  name="t3_name" placeholder="Название третьего города" aria-label="default input example" required>
+    <br>
+    <input class="form-control" type="text"  name="t4_name" placeholder="Название четвёртого города" aria-label="default input example" required>
+    <br>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupSelect01">Перк</label>
+        <select class="form-select" id="inputGroupSelect01" name="perk">
+          <option selected>Джимми Нейтрон</option>
+          <option value="Пацифист">Пацифист</option>
+          <option value="Житель пустоши">Житель пустоши</option>
+          <option value="Нетерпеливый">Нетерпеливый</option>
+          <option value="Дед инсайд">Дед инсайд</option>
+          <option value="Берсерк">Берсерк</option>
+          <option value="Золотой телец">Золотой телец</option>
+          <option value="Друид">Друид</option>
+          <option value="Мародёр">Мародёр</option>
+        </select>
+      </div>
+      <br>
+      <input class="form-control" type="text"  name="lobby_name" placeholder="Название лобби" aria-label="default input example" required>
+      <br>
+      <br>
+      <input class="form-control" type="text" name="lobby_password" placeholder="Пароль лобби" aria-label="default input example">
+      <br>
+      <div class="d-grid gap-2 col-3 mx-auto">
+        <button type="submit" class="btn btn-outline-dark">Завершить создание</button>
+    </div>
+  </form>
+{% endblock %}
