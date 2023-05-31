@@ -1,60 +1,246 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Шпионаж</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <style>
-        .block {
-            height: 200px;
-            text-align: center;
-            font-size: 24px;
-            padding-top: 80px;
-        }
-        .block1 {
-            background-color: #f2f2f2;
-        }
-        .block2 {
-            background-color: #d9d9d9;
-        }
-        .block3 {
-            background-color: #c6e2ff;
-            display: none;
-        }
+{% extends "general_template.html" %}
+{% block content %}
+
+{% if Lobby.query.filter_by(id=player.lobby_id).first().player_count != len(LobbyPlayer.query.filter_by(lobby_id=player.lobby_id).all()) %}
+<div>
+    <p>Ожидайте игроков</p>
+    <p>Готово к игре: {{len(LobbyPlayer.query.filter_by(lobby_id=player.lobby_id).all())}} / {{Lobby.query.filter_by(id=player.lobby_id).first().player_count}}</p>
+    <form method="post">
+    <button type="submit" >Обновить данные</button>
+    </form>
+</div>
+{% else %}
+<style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #block1,
+      #block2,
+      #block3 {
+        width: 50%;
+        height: 100vh;
+        display: inline-block;
+        box-sizing: border-box;
+        transition: all 0.5s ease-out;
+      }
+      #block1 {
+        background-color: #fff;
+      }
+      #block2 {
+        background-color: #fff;
+      }
+      #block3 {
+        background-color: #fff;
+        position: relative;
+        top: -100vh;
+      }
+      #toggle-button {
+        display: block;
+        margin: 10px auto;
+      }
+      .show-block3 #block1,
+      .show-block3 #block2 {
+        width: 33.33%;
+        transition: all 0.5s ease-out;
+      }
+      .show-block3 #block1 {
+        float: left;
+      }
+      .show-block3 #block2 {
+        float: right;
+      }
+      .show-block3 #block3 {
+        top: 0;
+        transition: all 0.5s ease-out;
+      }
     </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6 block block1">
-                <h2>Первый блок</h2>
+    <div id="block1">
+        <form method="POST">
+            <button type="submit" value="{{player.id}}" name="ready">Готов</button>
+            <button type="submit" >Обновить данные</button>
+        </form>
+        <div><p>Название страны: {{player.country_name}}</p></div>
+        <p>Перк: {{player.perk}}</p>
+        <hr width="300px" align="left">
+
+        <form method="POST">
+        {% for i in range(4) -%}
+            <div>
+            <p>{{towns[i].name}} : {{towns[i].quality}}(+{{towns[i].quality_next}})
+                {% if towns[i].quality != 0 %}
+                <button type="submit" name="upg" value={{towns[i].id}}>Улучшить</button>
+                {% endif %}
+            </p>
+            <p>Щит: {{towns[i].shield}} ({{towns[i].shield_next}})
+                {% if towns[i].shield_next == 0 -%}
+                    {% if player.perk != "Берсерк" and towns[i].quality > 0 and towns[i].shield == 0 %}
+                    <button type="submit" name="shld" value="{{towns[i].id}}">Купить</button>
+                    {% endif-%}
+                    {% if player.perk == "Джимми Нейтрон" and towns[i].quality > 0 and towns[i].shield < 3%}
+                    <button type="submit" name="shld_extra" value="{{towns[i].id}}">Купить супер-щит</button>
+                    {% endif-%}
+                {% endif-%}
+                </p>
             </div>
-            <div class="col-md-6 block block2">
-                <button type="button" class="btn btn-primary" id="spyButton">Шпионаж</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 block block3">
-                <h2>Третий блок</h2>
-            </div>
+            <hr width="300px" align="left">
+        {% endfor -%}
+        </form>
+        <div>
+            <p>Бюджет: {{player.money}} (+{{player.money_next()}})</p>
+            <p>Множитель экономики: {{player.money_mltp}}</p>
+            <form method="POST">
+            <p>Ядерная разработка: {{player.nuke}}({{player.nuke_next}})
+            {% if player.nuke == "Нет" and player.nuke_next == "Не будет" and player.perk != "Пацифист" -%}
+
+             <button type="submit" name="nuke" value="1">Изучить</button>
+
+            {% else -%}
+
+            {% endif -%}
+            </p>
+                </form>
+
+            <form method="POST">
+            <p>Количество бомб: {{player.bombs_count}} (+{{player.bombs_count_next}})
+
+            {% if player.nuke == "Есть" -%}
+
+             <button type="submit" name="bomb" value="1">Сделать</button>
+
+            {% else -%}
+
+            {% endif -%}
+            </p>
+                </form>
+
+
+            <p>Санкции наложили:
+
+            {{player.sanctions}}
+
+            </p>
+
         </div>
     </div>
-    <script>
-        $(document).ready(function(){
-            $("#spyButton").click(function(){
-                $(".block1").toggleClass("col-md-6 col-md-4");
-                $(".block2").toggleClass("col-md-6 col-md-4");
-                $(".block3").toggle();
-                if ($(this).text() === "Шпионаж") {
-                    $(this).text("Закончить шпионаж");
-                } else {
-                    $(this).text("Шпионаж");
-                }
-            });
-        });
+    <div id="block2">
+        <p>Текущий раунд: {{Lobby.query.filter_by(id=player.lobby_id).first().round_num}}</p>
+        <p>Уровень экологии: {{Lobby.query.filter_by(id=player.lobby_id).first().eco}}%
+        <form method="post">
+        <button type="submit" value="1" name="eco_up">Улучшить экологию </button>
+    </form>
+        </p>
+        <p>Игроки:</p>
+
+
+        <hr width="300px" align="left">
+        {% for i in db.session.query(LobbyPlayer).filter_by(lobby_id=player.lobby_id).all() -%}
+
+            <div>
+                <form action="" method="post">
+                <p>{{i.country_name}} ({{i.get_quality()}}%)
+                    {% if i.is_ready %}
+                        Готов
+                    {% else %}
+                        Не готов
+                    {% endif %}
+
+
+                    {% if player.perk != "Джимми Нейтрон" %}
+                    <button type="submit" value="{{i.id}}" name="sanct">Наложить санкции</button >
+                    {% endif %}
+                    <button type="submit" value="{{i.id}}" name="spy" id="toggle-button">Шпионаж</button>
+                </p>
+                </form>
+                <form action="" method="post">
+                <p><input type="text" name="money_send"> <button type="submit" name="country_send" value="{{i.id}}">Отправить деньги</button></p>
+                </form>
+
+            {% for x in db.session.query(Town).filter_by(country_id=i.id).all() -%}
+                 <form action="" method="post">
+                <p>{{x.name}}: {{x.quality}}
+                    {% if ("|"+str(x.id)+"|") not in player.atk and player.bombs_count > 0 and x.quality != 0-%}
+                    <button type="submit" value="{{x.id}}" name="atk">Атака</button>
+
+                    {% else -%}
+
+                    {% endif -%}
+                </p>
+                 </form>
+
+        {% endfor -%}
+
+
+            <hr width="300px" align="left">
+        {% endfor -%}
+
+
+        </div>
+    </div>
+    <div id="block3">
+        {% if player.spy %}
+
+        <p>Шпионаж:</p>
+        <div>
+
+        <div><p>Название страны: {{LobbyPlayer.query.filter_by(id=player.spy).first().country_name}}</p></div>
+        <p>Перк: {{LobbyPlayer.query.filter_by(id=player.spy).first().perk}}</p>
+        <hr width="300px" align="left">
+
+        {% for i in Town.query.filter_by(country_id=player.spy).all() -%}
+            <div>
+            <p>{{i.name}} : {{i.quality}}(+{{i.quality_next}})</p>
+            <p>Щит: {{i.shield}} ({{i.shield_next}})
+
+                </p>
+            </div>
+            <hr width="300px" align="left">
+        {% endfor -%}
+
+
+        <div>
+            <p>Бюджет: {{LobbyPlayer.query.filter_by(id=player.spy).first().money}} (+{{LobbyPlayer.query.filter_by(id=player.spy).first().money_next()}})</p>
+
+            <p>Ядерная разработка: {{LobbyPlayer.query.filter_by(id=player.spy).first().nuke}}({{LobbyPlayer.query.filter_by(id=player.spy).first().nuke_next}})
+
+            </p>
+
+
+
+            <p>Количество бомб: {{LobbyPlayer.query.filter_by(id=player.spy).first().bombs_count}} (+{{LobbyPlayer.query.filter_by(id=player.spy).first().bombs_count_next}})
+
+
+            </p>
+
+
+
+            <p>Санкции наложили:
+
+            {{LobbyPlayer.query.filter_by(id=player.spy).first().sanctions}}
+
+            </p>
+
+        </div>
+
+        </div>
+    {% else %}
+
+    {% endif -%}
+
+
+    </div>
+
+    <script type="text/javascript">
+      var toggleButton = document.getElementById('toggle-button');
+      var block1 = document.getElementById('block1');
+      var block2 = document.getElementById('block2');
+      var block3 = document.getElementById('block3');
+
+      toggleButton.addEventListener('click', function() {
+        block1.classList.toggle('show-block3');
+        block2.classList.toggle('show-block3');
+        block3.classList.toggle('show-block3');
+      });
     </script>
-</body>
-</html>
+{% endif %}
+{% endblock %}

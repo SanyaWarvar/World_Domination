@@ -1,23 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        {{player.country_name}}
-    </title>
-</head>
-<style type="text/css">
-    .block0{
-    position: relative;
-    top: -620px;
-    left: 450px;
-   }
-    .block1{
-    position: relative;
-    top: -550px;
-    left: 500px;
-   }
-
-</style>
+{% extends "general_template.html" %}
+{% block content %}
 
 {% if Lobby.query.filter_by(id=player.lobby_id).first().player_count != len(LobbyPlayer.query.filter_by(lobby_id=player.lobby_id).all()) %}
 <div>
@@ -27,18 +9,52 @@
     <button type="submit" >Обновить данные</button>
     </form>
 </div>
-
-
 {% else %}
-<body>
-<div class="block">
-    <form method="POST">
+    <style>
+    .container {
+			display: flex;
+			flex-wrap: wrap;
+			width: 100%;
+			height: 100%;
+		}
+		.block {
+			flex-grow: 1;
+			height: 100%;
+			background-color: #aaa;
+			margin: 10px;
+		}
+		.block-2 {
+			position: relative;
+		}
+		
+		.block-3 {
+			flex-grow: 1;
+			height: 100%;
+			background-color: #555;
+			margin: 10px;
+			display: none;
+		}
+		.move-left {
+			transform: translateX(-100%);
+			transition: transform 1s ease-in;
+		}
+		.show-block-3 {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+		.show-block-2 {
+			flex-grow: 2;
+		}
+    </style>
+    <div class="container">
+    <div class="block">
+        <form method="POST">
             <button type="submit" value="{{player.id}}" name="ready">Готов</button>
             <button type="submit" >Обновить данные</button>
         </form>
         <div><p>Название страны: {{player.country_name}}</p></div>
         <p>Перк: {{player.perk}}</p>
-        <hr width="300px" align="left">
 
         <form method="POST">
         {% for i in range(4) -%}
@@ -59,10 +75,9 @@
                 {% endif-%}
                 </p>
             </div>
-            <hr width="300px" align="left">
+
         {% endfor -%}
         </form>
-
         <div>
             <p>Бюджет: {{player.money}} (+{{player.money_next()}})</p>
             <p>Множитель экономики: {{player.money_mltp}}</p>
@@ -99,10 +114,8 @@
             </p>
 
         </div>
-
-</div>
-
-    <div class="block0">
+    </div>
+    <div class="block-2">
         <p>Текущий раунд: {{Lobby.query.filter_by(id=player.lobby_id).first().round_num}}</p>
         <p>Уровень экологии: {{Lobby.query.filter_by(id=player.lobby_id).first().eco}}%
         <form method="post">
@@ -111,8 +124,6 @@
         </p>
         <p>Игроки:</p>
 
-
-        <hr width="300px" align="left">
         {% for i in db.session.query(LobbyPlayer).filter_by(lobby_id=player.lobby_id).all() -%}
 
             <div>
@@ -128,7 +139,7 @@
                     {% if player.perk != "Джимми Нейтрон" %}
                     <button type="submit" value="{{i.id}}" name="sanct">Наложить санкции</button >
                     {% endif %}
-                    <button type="submit" value="{{i.id}}" name="spy">Шпионаж</button>
+                    <button type="submit" value="{{i.id}}" name="spy" class="button" onclick="showBlock3()">Шпионаж</button>
                 </p>
                 </form>
                 <form action="" method="post">
@@ -148,24 +159,20 @@
                  </form>
 
         {% endfor -%}
-
-
-            <hr width="300px" align="left">
         {% endfor -%}
 
 
-</div>
+        </div>
     </div>
-
-    <div class="block1">
-    {% if player.spy %}
-
+    <div class="block-3">
+      <p>asdsad</p>
+        {% if player.spy %}
+      <p>2</p>
         <p>Шпионаж:</p>
         <div>
 
         <div><p>Название страны: {{LobbyPlayer.query.filter_by(id=player.spy).first().country_name}}</p></div>
         <p>Перк: {{LobbyPlayer.query.filter_by(id=player.spy).first().perk}}</p>
-        <hr width="300px" align="left">
 
         {% for i in Town.query.filter_by(country_id=player.spy).all() -%}
             <div>
@@ -174,7 +181,7 @@
 
                 </p>
             </div>
-            <hr width="300px" align="left">
+
         {% endfor -%}
 
 
@@ -203,12 +210,25 @@
         </div>
 
         </div>
-        </div>
     {% else %}
 
     {% endif -%}
-
+  </div>
+</div>
+    <script type="text/javascript">
+        function showBlock3() {
+          let block = document.querySelectorAll('.block');
+          let block2 = document.querySelector('.block-2');
+          let block3 = document.querySelector('.block-3');
+          block[0].classList.add('move-left');
+          block[1].classList.add('move-left');
+          block3.style.display = 'flex';
+          block3.classList.add('show-block-3');
+          setTimeout(() => {
+            block[0].style.display = 'none';
+            block[1].style.display = 'none';
+          }, 1000);
+		}
+    </script>
 {% endif %}
-
-</body>
-</html>
+{% endblock %}
