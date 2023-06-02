@@ -2,6 +2,10 @@ from config import db, login_manager
 from flask_login import UserMixin
 
 
+class Final(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+
 class Lobby(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(20), unique=True, nullable=True)
@@ -9,15 +13,19 @@ class Lobby(db.Model):
     eco = db.Column(db.Float)
     eco_next = db.Column(db.Float)
     round_num = db.Column(db.Integer)
+    end_round = db.Column(db.Integer)
     player_count = db.Column(db.Integer)
+    final_id = db.Column(db.Integer)
 
-    def __init__(self, title, password, player_count):
+    def __init__(self, title, password, player_count, end_round, final_id):
         self.eco = 90
         self.eco_next = 0
         self.title = title
         self.password = password
         self.round_num = 1
         self.player_count = player_count
+        self.end_round = end_round
+        self.final_id = final_id
 
     def round(self):
         self.round_num += 1
@@ -25,9 +33,20 @@ class Lobby(db.Model):
         self.eco_next = 0
 
         for player in LobbyPlayer.query.filter_by(lobby_id=self.id).all():
+            if player.get_quality == 0:
+                player.is_ready = 1
+
+            if self.round_num == self.end_round + 1:
+                player.game_end(final_id=self.final_id)
+                user = Users.query.filter_by(current_country_id=player.id).first()
+                user.last_game_id = self.final_id
+                user.current_country_id = None
+                db.session.add(user)
+                db.session.commit()
+
             player.is_ready = False
             player.atk = ""
-            player.sy = ""
+            player.spy = ""
             player.sanctions += player.sanctions_next
             player.sanctions_next = ""
             player.money += round(
@@ -72,6 +91,8 @@ class Lobby(db.Model):
 class LobbyPlayer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lobby_id = db.Column(db.Integer)
+    final_id = db.Column(db.Integer)
+
     is_ready = db.Column(db.Boolean)
 
     atk = db.Column(db.String(100))
@@ -159,9 +180,7 @@ class LobbyPlayer(db.Model):
             self.sanct_power_self = 0.05
 
             for t in Town.query.filter_by(country_id=self.id).all():
-                print(t.name, t.quality)
                 t.quality -= 15
-                print(t.name, t.quality)
                 db.session.add(t)
                 db.session.commit()
 
@@ -195,6 +214,12 @@ class LobbyPlayer(db.Model):
             next_quality += t.quality
         return round((self.get_quality() + next_quality) * self.money_mltp)
 
+    def game_end(self, final_id):
+        self.final_id = final_id
+        self.lobby_id = None
+        db.session.add(self)
+        db.session.commit()
+
 
 class Town(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -226,6 +251,7 @@ class Town(db.Model):
 
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    last_game_id = db.Column(db.Integer)
     current_country_id = db.Column(db.Integer)
     name = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(20), nullable=False)
@@ -239,6 +265,11 @@ class Users(db.Model, UserMixin):
 
     def check_password(self, password):
         return password == self.password
+
+    def game_end(self, last_game_id):
+        self.last_game_id = last_game_id
+        db.session.add(self)
+        db.session.commit()
 
 
 @login_manager.user_loader

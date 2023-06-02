@@ -16,12 +16,14 @@
 			flex-wrap: wrap;
 			width: 100%;
 			height: 100%;
+            background-color: #DCDCDC;
+
 		}
 		.block {
 			flex-grow: 1;
 			height: 100%;
-			background-color: #aaa;
 			margin: 10px;
+
 		}
 		.block-2 {
 			position: relative;
@@ -30,9 +32,9 @@
 		.block-3 {
 			flex-grow: 1;
 			height: 100%;
-			background-color: #555;
+
 			margin: 10px;
-			display: none;
+
 		}
 		.move-left {
 			transform: translateX(-100%);
@@ -165,9 +167,7 @@
         </div>
     </div>
     <div class="block-3">
-      <p>asdsad</p>
         {% if player.spy %}
-      <p>2</p>
         <p>Шпионаж:</p>
         <div>
 

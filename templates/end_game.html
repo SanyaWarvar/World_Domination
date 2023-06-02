@@ -1,0 +1,14 @@
+{% extends "general_template.html" %}
+{% block content %}
+
+<div>
+    <p>Итог партии:</p>
+</div>
+{% for i, p in enumerate(players) %}
+<div>
+    <p>{{i + 1}} место: {{p.country_name}}. Суммарное качество: {{p.get_quality()}}%</p>
+</div>
+<hr>
+    {% endfor %}
+
+{% endblock %}

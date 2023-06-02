@@ -10,16 +10,22 @@
         <div>
             <input class="form-control" type="text"  name="lobby_password" placeholder="Пароль" aria-label="default input example">
             <div id="passwordHelpBlock" class="form-text">
-                Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                Пароль не должен содержать пробелов, специальных символов и емодзи. Оставьте поле пустым, чтобы создать лобби без пароля
             </div>
             <br>
         </div>
         <div>
             <input class="form-control" type="text"  name="player_count" placeholder="Количество игроков" aria-label="default input example" required>
-            <div id="passwordHelpBlock" class="form-text">
-                Only int.
+            <div id="playersdHelpBlock" class="form-text">
+                Вводите только целое число
             </div>
             <br>
+        </div>
+        <div>
+            <input class="form-control" type="text"  name="end_round" placeholder="Количество раундов" aria-label="default input example" required>
+            <div id="roundHelpBlock" class="form-text">
+                Вводите только целое число
+            </div>
         </div>
         <div class="d-grid gap-2 col-3 mx-auto">
         <button type="submit" class="btn btn-outline-dark">Создать лобби</button>
